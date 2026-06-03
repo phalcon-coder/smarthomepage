@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Fraunces:ital,wght@0,200;0,300;1,200&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --glass: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.14);
+      --glass-hover: rgba(255,255,255,0.14);
+      --text: rgba(255,255,255,0.92);
+      --text-muted: rgba(255,255,255,0.52);
+      --accent: #fb923c;
+      --accent2: #f472b6;
+      --radius: 18px;
+      --blur: blur(22px);
+      --shadow: 0 8px 40px rgba(0,0,0,0.35);
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Outfit', sans-serif;
+      color: var(--text);
+      user-select: none;
+    }
+
+    /* ── WALLPAPER ── */
+    #bg-a, #bg-b {
+      position: fixed; inset: 0; z-index: 0;
+      background-size: cover;
+      background-position: center;
+      transition: opacity 1.8s ease;
+    }
+    #bg-b { opacity: 0; }
+    .bg-blur {
+      position: fixed; inset: 0; z-index: 1;
+      backdrop-filter: blur(28px) brightness(0.62) saturate(1.2);
+      -webkit-backdrop-filter: blur(28px) brightness(0.62) saturate(1.2);
+    }
+
+    /* ── LAYOUT ── */
+    #app {
+      position: relative; z-index: 2;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 1fr;
+      padding: 36px 48px 32px;
+      gap: 0;
+    }
+
+    /* ── TOP BAR ── */
+    #topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #greeting-block .time {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 200;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    #greeting-block .greeting {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 300;
+      letter-spacing: 0.4px;
+    }
+
+
+
+    /* ── CENTER ── */
+    #center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+    }
+
+    /* ── SEARCH BAR ── */
+    #search-wrap {
+      width: min(640px, 90vw);
+      position: relative;
+    }
+    #search-form {
+      display: flex;
+      align-items: center;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      border-radius: 50px;
+      padding: 0 8px 0 22px;
+      transition: border-color 0.25s, background 0.25s;
+      box-shadow: var(--shadow);
+    }
+    #search-form:focus-within {
+      border-color: rgba(255,255,255,0.32);
+      background: rgba(255,255,255,0.13);
+    }
+    #search-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      padding: 14px 0;
+      letter-spacing: 0.2px;
+    }
+    #search-input::placeholder { color: var(--text-muted); }
+
+    .search-btn {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, background 0.2s;
+      font-size: 0.78rem;
+      font-family: 'Outfit', sans-serif;
+    }
+    .search-btn:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+    #leo-btn {
+      background: linear-gradient(135deg, #fb923c, #f472b6);
+      color: #fff;
+      border-radius: 50px;
+      padding: 7px 16px;
+      font-weight: 500;
+      font-size: 0.78rem;
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+    #leo-btn:hover { opacity: 0.88; color: #fff; background: linear-gradient(135deg, #fb923c, #f472b6); }
+
+    #search-mode-hint {
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      letter-spacing: 0.3px;
+    }
+    #search-mode-hint span {
+      opacity: 0.8;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    /* ── PINNED SITES ── */
+    #pins-section {
+      width: min(740px, 90vw);
+    }
+    #pins-label {
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+    #pins-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .pin-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      position: relative;
+    }
+    .pin-icon {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: transform 0.18s, background 0.18s;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .pin-icon img {
+      width: 30px; height: 30px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .pin-item:hover .pin-icon {
+      transform: translateY(-3px);
+      background: var(--glass-hover);
+    }
+    .pin-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      max-width: 60px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pin-delete {
+      position: absolute;
+      top: -6px; right: -6px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 11px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .pin-item:hover .pin-delete { display: flex; }
+
+    #add-pin-btn {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      transition: color 0.2s, background 0.2s, transform 0.18s;
+      flex-shrink: 0;
+    }
+    #add-pin-btn:hover {
+      color: var(--text);
+      background: var(--glass-hover);
+      transform: translateY(-3px);
+    }
+
+    .pin-category {
+      margin-bottom: 20px;
+    }
+
+    .pin-category-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .pin-category-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* ── BOTTOM DATE ── */
+    #bottom-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #date-str {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      font-weight: 300;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: rgba(22,22,30,0.92);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 28px 30px;
+      width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      transform: translateY(12px);
+      transition: transform 0.22s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .modal input {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .modal input:focus { border-color: rgba(255,255,255,0.35); }
+    .modal input::placeholder { color: var(--text-muted); }
+    .modal-btns {
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+    .btn-cancel {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .btn-cancel:hover { background: rgba(255,255,255,0.13); }
+    .btn-add {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 8px 20px;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .btn-add:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+<div id="bg-a"></div>
+<div id="bg-b"></div>
+<div class="bg-blur"></div>
+
+<div id="app">
+  <!-- TOP -->
+  <div id="topbar">
+    <div id="greeting-block">
+      <div class="time" id="clock">--:--</div>
+      <div class="greeting" id="greeting-text">Good morning, Adib!</div>
+    </div>
+
+  </div>
+
+  <!-- CENTER -->
+  <div id="center">
+    <div id="search-wrap">
+      <div id="search-form">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2.2" stroke-linecap="round" style="flex-shrink:0;margin-right:4px">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input id="search-input" type="text" placeholder="Search or enter address…" autocomplete="off" spellcheck="false" />
+        <button class="search-btn" id="leo-btn" title="Ask Brave AI" onclick="openBraveAI()">✦ AI</button>
+        <button class="search-btn" id="go-btn" title="Go" onclick="doSearch()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div id="search-mode-hint"><span id="mode-label">Search</span> · Press Enter</div>
+    </div>
+
+    <div id="pins-section">
+      <div id="pins-label">Pinned</div>
+      <div id="pins-categories"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div id="bottom-bar">
+    <div id="date-str"></div>
+  </div>
+</div>
+
+<!-- ADD PIN MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Pin a site</h3>
+    <input id="pin-url" type="url" placeholder="https://example.com" />
+    <input id="pin-name" type="text" placeholder="Label (optional)" />
+    <select id="pin-category">
+      <option>AI</option>
+      <option>Social</option>
+      <option>Development</option>
+      <option>Productivity</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-add" onclick="addPin()">Pin it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// WALLPAPER ENGINE
+// ─────────────────────────────────────────────
+const bgA = document.getElementById('bg-a');
+const bgB = document.getElementById('bg-b');
+let wallpapers = [];
+let wIdx = 0;
+let activeLayer = 'a';
+
+async function loadWallpapers() {
+  try {
+    const r = await fetch('backgrounds/manifest.json');
+    const data = await r.json();
+    wallpapers = data.wallpapers.map(f => `backgrounds/${f}`);
+  } catch {
+    // fallback: gradient if no wallpapers
+    wallpapers = [];
+    document.documentElement.style.background = 'linear-gradient(135deg,#0f0c29,#302b63,#24243e)';
+  }
+  if (wallpapers.length === 0) return;
+  wIdx = Math.floor(Math.random() * wallpapers.length);
+  bgA.style.backgroundImage = `url('${wallpapers[wIdx]}')`;
+  setInterval(rotateWallpaper, 3 * 60 * 1000); // every 3 minutes
+}
+
+function rotateWallpaper() {
+  if (wallpapers.length < 2) return;
+  let next = wIdx;
+  while (next === wIdx) next = Math.floor(Math.random() * wallpapers.length);
+  wIdx = next;
+  const url = `url('${wallpapers[wIdx]}')`;
+  if (activeLayer === 'a') {
+    bgB.style.backgroundImage = url;
+    bgB.style.opacity = '1';
+    bgA.style.opacity = '0';
+    activeLayer = 'b';
+  } else {
+    bgA.style.backgroundImage = url;
+    bgA.style.opacity = '1';
+    bgB.style.opacity = '0';
+    activeLayer = 'a';
+  }
+}
+
+loadWallpapers();
+
+// ─────────────────────────────────────────────
+// CLOCK + GREETING
+// ─────────────────────────────────────────────
+function tick() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const hh = h % 12 || 12;
+  const mm = String(m).padStart(2, '0');
+  const ampm = h < 12 ? 'AM' : 'PM';
+  document.getElementById('clock').textContent = `${hh}:${mm} ${ampm}`;
+
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting-text').textContent = `${greet}, Adib!`;
+
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('date-str').textContent =
+    `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+}
+tick(); setInterval(tick, 30000);
+
+
+
+// ─────────────────────────────────────────────
+// SEARCH / URL BAR
+// ─────────────────────────────────────────────
+const input = document.getElementById('search-input');
+const modeLabel = document.getElementById('mode-label');
+
+input.addEventListener('input', () => {
+  const v = input.value.trim();
+  if (!v) { modeLabel.textContent = 'Search'; return; }
+  if (isURL(v)) modeLabel.textContent = 'Go to';
+  else modeLabel.textContent = 'Search Brave';
+});
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+function isURL(str) {
+  return /^(https?:\/\/|www\.)/i.test(str) ||
+    (/^[a-z0-9-]+\.[a-z]{2,}/i.test(str) && !str.includes(' '));
+}
+
+function doSearch() {
+  const v = input.value.trim();
+  if (!v) return;
+  if (isURL(v)) {
+    const url = /^https?:\/\//i.test(v) ? v : 'https://' + v;
+    window.location.href = url;
+  } else {
+    window.location.href = `https://search.brave.com/search?q=${encodeURIComponent(v)}`;
+  }
+}
+
+function openBraveAI() {
+  const v = input.value.trim();
+  const query = v ? `${v} ??` : '??';
+  window.location.href = `https://search.brave.com/search?q=${encodeURIComponent(query)}`;
+}
+
+// Autofocus
+window.addEventListener('load', () => setTimeout(() => input.focus(), 100));
+document.addEventListener('keydown', e => {
+  const tag = e.target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (e.target !== input && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
+    input.focus();
+  }
+});
+
+// ─────────────────────────────────────────────
+// PINNED SITES
+// ─────────────────────────────────────────────
+let pins = JSON.parse(localStorage.getItem('hp_pins') || '{}');
+
+if (Array.isArray(pins)) {
+  pins = {
+    AI: pins,
+    Social: [],
+    Development: [],
+    Productivity: []
+  };
+}
+
+if (!pins.AI) pins.AI = [];
+if (!pins.Social) pins.Social = [];
+if (!pins.Development) pins.Development = [];
+if (!pins.Productivity) pins.Productivity = [];
+
+function savePins() { localStorage.setItem('hp_pins', JSON.stringify(pins)); }
+
+function getFavicon(url) {
+  try {
+    const origin = new URL(url).origin;
+    return `https://www.google.com/s2/favicons?sz=64&domain=${origin}`;
+  } catch { return null; }
+}
+
+function renderPins() {
+  const container = document.getElementById('pins-categories');
+  container.innerHTML = '';
+
+  Object.entries(pins).forEach(([category, categoryPins]) => {
+    const section = document.createElement('div');
+    section.className = 'pin-category';
+
+    const title = document.createElement('div');
+    title.className = 'pin-category-title';
+    title.textContent = category;
+
+    const grid = document.createElement('div');
+    grid.className = 'pin-category-grid';
+
+    categoryPins.forEach((pin, i) => {
+      const item = document.createElement('div');
+      item.className = 'pin-item';
+
+      const icon = document.createElement('div');
+      icon.className = 'pin-icon';
+
+      const fav = getFavicon(pin.url);
+      if (fav) {
+        const img = document.createElement('img');
+        img.src = fav;
+        img.onerror = () => { img.remove(); icon.textContent = pin.name[0].toUpperCase(); };
+        icon.appendChild(img);
+      } else {
+        icon.textContent = pin.name[0]?.toUpperCase() || '?';
+      }
+
+      const label = document.createElement('div');
+      label.className = 'pin-label';
+      label.textContent = pin.name;
+
+      const del = document.createElement('div');
+      del.className = 'pin-delete';
+      del.textContent = '×';
+      del.onclick = (e) => {
+        e.stopPropagation();
+        categoryPins.splice(i, 1);
+        savePins();
+        renderPins();
+      };
+
+      item.appendChild(icon);
+      item.appendChild(label);
+      item.appendChild(del);
+      item.onclick = () => window.location.href = pin.url;
+
+      grid.appendChild(item);
+    });
+
+    const addBtn = document.createElement('div');
+    addBtn.className = 'pin-icon';
+    addBtn.textContent = '+';
+    addBtn.style.cursor = 'pointer';
+    addBtn.onclick = () => {
+      document.getElementById('pin-category').value = category;
+      openModal();
+    };
+
+    grid.appendChild(addBtn);
+
+    section.appendChild(title);
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+renderPins();
+
+// Modal
+const modal = document.getElementById('modal');
+function openModal() {
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('pin-url').focus(), 80);
+}
+function closeModal() {
+  modal.classList.remove('open');
+  document.getElementById('pin-url').value = '';
+  document.getElementById('pin-name').value = '';
+}
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+function addPin() {
+  let url = document.getElementById('pin-url').value.trim();
+  let name = document.getElementById('pin-name').value.trim();
+  if (!url) return;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  if (!name) {
+    try { name = new URL(url).hostname.replace('www.',''); }
+    catch { name = url; }
+  }
+  const category = document.getElementById('pin-category').value;
+pins[category].push({ url, name });
+  savePins();
+  renderPins();
+  closeModal();
+}
+
+document.getElementById('pin-url').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('pin-name').focus();
+});
+document.getElementById('pin-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addPin();
+});
+</script>
+</body>
+</html>
