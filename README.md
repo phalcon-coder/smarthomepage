@@ -1,4 +1,4 @@
-# Adib's Browser Homepage
+#Brave Browser Homepage
 
 ## Setup
 
