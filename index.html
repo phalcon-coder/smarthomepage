@@ -23,8 +23,9 @@
     }
 
     html, body {
-      height: 100%;
-      overflow: hidden;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
       font-family: 'Outfit', sans-serif;
       color: var(--text);
       user-select: none;
@@ -47,7 +48,7 @@
     /* ── LAYOUT ── */
     #app {
       position: relative; z-index: 2;
-      height: 100vh;
+      min-height: 100vh;
       display: grid;
       grid-template-rows: auto 1fr auto;
       grid-template-columns: 1fr;
@@ -414,6 +415,7 @@
     <input id="pin-url" type="url" placeholder="https://example.com" />
     <input id="pin-name" type="text" placeholder="Label (optional)" />
     <select id="pin-category">
+      <option>Entertainment</option>
       <option>AI</option>
       <option>Social</option>
       <option>Development</option>
@@ -552,6 +554,7 @@ let pins = JSON.parse(localStorage.getItem('hp_pins') || '{}');
 
 if (Array.isArray(pins)) {
   pins = {
+    Entertainment: [],
     AI: pins,
     Social: [],
     Development: [],
@@ -559,6 +562,7 @@ if (Array.isArray(pins)) {
   };
 }
 
+if (!pins.Entertainment) pins.Entertainment = [];
 if (!pins.AI) pins.AI = [];
 if (!pins.Social) pins.Social = [];
 if (!pins.Development) pins.Development = [];
