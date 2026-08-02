@@ -18,6 +18,7 @@
       --accent: #fb923c;
       --accent2: #f472b6;
       --radius: 18px;
+      --blur-amount: 28px;
       --blur: blur(22px);
       --shadow: 0 8px 40px rgba(0,0,0,0.35);
     }
@@ -41,8 +42,9 @@
     #bg-b { opacity: 0; }
     .bg-blur {
       position: fixed; inset: 0; z-index: 1;
-      backdrop-filter: blur(28px) brightness(0.62) saturate(1.2);
-      -webkit-backdrop-filter: blur(28px) brightness(0.62) saturate(1.2);
+      backdrop-filter: blur(var(--blur-amount)) brightness(0.62) saturate(1.2);
+      -webkit-backdrop-filter: blur(var(--blur-amount)) brightness(0.62) saturate(1.2);
+      transition: backdrop-filter 0.25s ease;
     }
 
     /* ── LAYOUT ── */
@@ -61,6 +63,32 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+    }
+
+    #topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    #settings-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: var(--blur);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: transform 0.35s ease, color 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    #settings-btn:hover {
+      color: var(--text);
+      background: var(--glass-hover);
+      transform: rotate(45deg);
     }
 
     #greeting-block .time {
@@ -314,13 +342,21 @@
       transform: translateY(12px);
       transition: transform 0.22s;
     }
+    .modal.wide { width: 420px; }
     .modal-overlay.open .modal { transform: translateY(0); }
     .modal h3 {
       font-size: 1rem;
       font-weight: 500;
       color: var(--text);
     }
-    .modal input {
+    .modal p.sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: -8px;
+      line-height: 1.4;
+      font-weight: 300;
+    }
+    .modal input, .modal select {
       background: rgba(255,255,255,0.07);
       border: 1px solid var(--glass-border);
       border-radius: 10px;
@@ -332,7 +368,8 @@
       width: 100%;
       transition: border-color 0.2s;
     }
-    .modal input:focus { border-color: rgba(255,255,255,0.35); }
+    .modal select option { background: #1c1c26; color: var(--text); }
+    .modal input:focus, .modal select:focus { border-color: rgba(255,255,255,0.35); }
     .modal input::placeholder { color: var(--text-muted); }
     .modal-btns {
       display: flex; gap: 10px; justify-content: flex-end;
@@ -362,6 +399,84 @@
       transition: opacity 0.2s;
     }
     .btn-add:hover { opacity: 0.85; }
+
+    /* ── SETTINGS MODAL EXTRAS ── */
+    .settings-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 6px;
+      border-top: 1px solid var(--glass-border);
+    }
+    .settings-section:first-of-type { border-top: none; padding-top: 0; }
+    .settings-section-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .settings-row label {
+      font-size: 0.85rem;
+      color: var(--text);
+      font-weight: 300;
+    }
+    #blur-slider { width: 100%; accent-color: var(--accent); }
+    #blur-val {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      min-width: 42px;
+      text-align: right;
+    }
+    .cat-edit-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cat-edit-row input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .cat-edit-row .cat-del {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 0.85rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cat-edit-row .cat-del:hover { background: rgba(244,63,94,0.25); color: #fff; }
+    #cat-list { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; }
+    .cat-add-row { display: flex; gap: 8px; margin-top: 4px; }
+    .cat-add-row input { flex: 1; padding: 8px 12px; font-size: 0.85rem; }
+    .btn-small {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-small:hover { background: var(--glass-hover); }
+
+    /* ── NAME PROMPT MODAL ── */
+    #name-modal .modal { align-items: stretch; }
+    #name-modal h3 { text-align: left; }
   </style>
 </head>
 <body>
@@ -373,11 +488,18 @@
 <div id="app">
   <!-- TOP -->
   <div id="topbar">
-    <div id="greeting-block">
-      <div class="time" id="clock">--:--</div>
-      <div class="greeting" id="greeting-text">Good morning, Adib!</div>
+    <div id="topbar-left">
+      <div id="settings-btn" title="Settings" onclick="openSettings()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </div>
+      <div id="greeting-block">
+        <div class="time" id="clock">--:--</div>
+        <div class="greeting" id="greeting-text">Good morning!</div>
+      </div>
     </div>
-
   </div>
 
   <!-- CENTER -->
@@ -414,13 +536,7 @@
     <h3>Pin a site</h3>
     <input id="pin-url" type="url" placeholder="https://example.com" />
     <input id="pin-name" type="text" placeholder="Label (optional)" />
-    <select id="pin-category">
-      <option>Entertainment</option>
-      <option>AI</option>
-      <option>Social</option>
-      <option>Development</option>
-      <option>Productivity</option>
-    </select>
+    <select id="pin-category"></select>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-add" onclick="addPin()">Pin it</button>
@@ -428,7 +544,98 @@
   </div>
 </div>
 
+<!-- NAME PROMPT MODAL (first run) -->
+<div class="modal-overlay" id="name-modal">
+  <div class="modal">
+    <h3>What should we call you?</h3>
+    <p class="sub">This is just for your greeting — it stays on this device.</p>
+    <input id="name-input" type="text" placeholder="Your first name" maxlength="24" />
+    <div class="modal-btns">
+      <button class="btn-add" onclick="saveName()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal wide">
+    <h3>Settings</h3>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Your name</div>
+      <input id="settings-name" type="text" maxlength="24" placeholder="Your first name" />
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Background</div>
+      <select id="wallpaper-mode-select" onchange="onWallpaperModeChange()">
+        <option value="auto">Auto rotate</option>
+        <option value="fixed">Fixed image</option>
+      </select>
+      <select id="wallpaper-fixed-select" style="display:none"></select>
+      <div class="settings-row" id="interval-row">
+        <label for="interval-input">Rotate every</label>
+        <select id="interval-input" style="width:auto">
+          <option value="1">1 min</option>
+          <option value="3">3 min</option>
+          <option value="5">5 min</option>
+          <option value="10">10 min</option>
+          <option value="30">30 min</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Blur</div>
+      <div class="settings-row">
+        <input id="blur-slider" type="range" min="0" max="60" step="1" oninput="onBlurInput()" />
+        <span id="blur-val">28px</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Categories</div>
+      <div id="cat-list"></div>
+      <div class="cat-add-row">
+        <input id="new-cat-input" type="text" placeholder="New category name" maxlength="20" />
+        <button class="btn-small" onclick="addCategory()">Add</button>
+      </div>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeSettings()">Close</button>
+      <button class="btn-add" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// ─────────────────────────────────────────────
+// STORAGE HELPERS
+// ─────────────────────────────────────────────
+function loadJSON(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  } catch { return fallback; }
+}
+function saveJSON(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+// ─────────────────────────────────────────────
+// SETTINGS STATE
+// ─────────────────────────────────────────────
+let settings = loadJSON('hp_settings', {
+  blur: 28,
+  wallpaperMode: 'auto',   // 'auto' | 'fixed'
+  fixedWallpaper: '',
+  rotateInterval: 3        // minutes
+});
+
+function applyBlur() {
+  document.documentElement.style.setProperty('--blur-amount', settings.blur + 'px');
+}
+applyBlur();
+
 // ─────────────────────────────────────────────
 // WALLPAPER ENGINE
 // ─────────────────────────────────────────────
@@ -437,6 +644,7 @@ const bgB = document.getElementById('bg-b');
 let wallpapers = [];
 let wIdx = 0;
 let activeLayer = 'a';
+let rotateTimer = null;
 
 async function loadWallpapers() {
   try {
@@ -444,18 +652,50 @@ async function loadWallpapers() {
     const data = await r.json();
     wallpapers = data.wallpapers.map(f => `backgrounds/${f}`);
   } catch {
-    // fallback: gradient if no wallpapers
     wallpapers = [];
     document.documentElement.style.background = 'linear-gradient(135deg,#0f0c29,#302b63,#24243e)';
   }
+  populateWallpaperSelect();
+  applyWallpaperMode(true);
+}
+
+function populateWallpaperSelect() {
+  const sel = document.getElementById('wallpaper-fixed-select');
+  sel.innerHTML = '';
+  wallpapers.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w;
+    opt.textContent = w.replace('backgrounds/', '');
+    sel.appendChild(opt);
+  });
+}
+
+function applyWallpaperMode(initial) {
+  if (rotateTimer) { clearInterval(rotateTimer); rotateTimer = null; }
   if (wallpapers.length === 0) return;
-  wIdx = Math.floor(Math.random() * wallpapers.length);
-  bgA.style.backgroundImage = `url('${wallpapers[wIdx]}')`;
-  setInterval(rotateWallpaper, 3 * 60 * 1000); // every 3 minutes
+
+  if (settings.wallpaperMode === 'fixed' && settings.fixedWallpaper && wallpapers.includes(settings.fixedWallpaper)) {
+    bgA.style.backgroundImage = `url('${settings.fixedWallpaper}')`;
+    bgA.style.opacity = '1';
+    bgB.style.opacity = '0';
+    activeLayer = 'a';
+    return;
+  }
+
+  // auto mode
+  if (initial) {
+    wIdx = Math.floor(Math.random() * wallpapers.length);
+    bgA.style.backgroundImage = `url('${wallpapers[wIdx]}')`;
+    bgA.style.opacity = '1';
+    bgB.style.opacity = '0';
+    activeLayer = 'a';
+  }
+  const ms = (settings.rotateInterval || 3) * 60 * 1000;
+  rotateTimer = setInterval(rotateWallpaper, ms);
 }
 
 function rotateWallpaper() {
-  if (wallpapers.length < 2) return;
+  if (settings.wallpaperMode !== 'auto' || wallpapers.length < 2) return;
   let next = wIdx;
   while (next === wIdx) next = Math.floor(Math.random() * wallpapers.length);
   wIdx = next;
@@ -476,6 +716,35 @@ function rotateWallpaper() {
 loadWallpapers();
 
 // ─────────────────────────────────────────────
+// USER NAME
+// ─────────────────────────────────────────────
+let userName = localStorage.getItem('hp_username') || '';
+
+function ensureName() {
+  if (!userName) {
+    const nameModal = document.getElementById('name-modal');
+    nameModal.classList.add('open');
+    setTimeout(() => document.getElementById('name-input').focus(), 80);
+  }
+}
+
+function saveName() {
+  const input = document.getElementById('name-input');
+  const v = input.value.trim();
+  if (!v) { input.focus(); return; }
+  userName = v;
+  localStorage.setItem('hp_username', userName);
+  document.getElementById('name-modal').classList.remove('open');
+  tick();
+}
+
+document.getElementById('name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveName();
+});
+
+ensureName();
+
+// ─────────────────────────────────────────────
 // CLOCK + GREETING
 // ─────────────────────────────────────────────
 function tick() {
@@ -487,7 +756,7 @@ function tick() {
   document.getElementById('clock').textContent = `${hh}:${mm} ${ampm}`;
 
   const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  document.getElementById('greeting-text').textContent = `${greet}, Adib!`;
+  document.getElementById('greeting-text').textContent = userName ? `${greet}, ${userName}!` : `${greet}!`;
 
   const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -538,37 +807,34 @@ function openBraveAI() {
 }
 
 // Autofocus
-window.addEventListener('load', () => setTimeout(() => input.focus(), 100));
+window.addEventListener('load', () => setTimeout(() => { if (userName) input.focus(); }, 100));
 document.addEventListener('keydown', e => {
   const tag = e.target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (document.querySelector('.modal-overlay.open')) return;
   if (e.target !== input && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
     input.focus();
   }
 });
 
 // ─────────────────────────────────────────────
-// PINNED SITES
+// CATEGORIES + PINNED SITES
 // ─────────────────────────────────────────────
-let pins = JSON.parse(localStorage.getItem('hp_pins') || '{}');
+const DEFAULT_CATEGORIES = ['Entertainment', 'AI', 'Social', 'Development', 'Productivity'];
 
+let pins = loadJSON('hp_pins', {});
 if (Array.isArray(pins)) {
-  pins = {
-    Entertainment: [],
-    AI: pins,
-    Social: [],
-    Development: [],
-    Productivity: []
-  };
+  pins = { Entertainment: [], AI: pins, Social: [], Development: [], Productivity: [] };
 }
 
-if (!pins.Entertainment) pins.Entertainment = [];
-if (!pins.AI) pins.AI = [];
-if (!pins.Social) pins.Social = [];
-if (!pins.Development) pins.Development = [];
-if (!pins.Productivity) pins.Productivity = [];
+let categories = loadJSON('hp_categories', null);
+if (!categories) {
+  categories = Object.keys(pins).length ? Object.keys(pins) : DEFAULT_CATEGORIES.slice();
+}
+categories.forEach(c => { if (!pins[c]) pins[c] = []; });
 
-function savePins() { localStorage.setItem('hp_pins', JSON.stringify(pins)); }
+function savePins() { saveJSON('hp_pins', pins); }
+function saveCategories() { saveJSON('hp_categories', categories); }
 
 function getFavicon(url) {
   try {
@@ -581,7 +847,8 @@ function renderPins() {
   const container = document.getElementById('pins-categories');
   container.innerHTML = '';
 
-  Object.entries(pins).forEach(([category, categoryPins]) => {
+  categories.forEach(category => {
+    const categoryPins = pins[category] || [];
     const section = document.createElement('div');
     section.className = 'pin-category';
 
@@ -648,9 +915,20 @@ function renderPins() {
   });
 }
 
-renderPins();
+function populatePinCategorySelect() {
+  const sel = document.getElementById('pin-category');
+  sel.innerHTML = '';
+  categories.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
 
-// Modal
+renderPins();
+populatePinCategorySelect();
+
+// Add-pin modal
 const modal = document.getElementById('modal');
 function openModal() {
   modal.classList.add('open');
@@ -672,8 +950,9 @@ function addPin() {
     try { name = new URL(url).hostname.replace('www.',''); }
     catch { name = url; }
   }
-  const category = document.getElementById('pin-category').value;
-pins[category].push({ url, name });
+  const category = document.getElementById('pin-category').value || categories[0];
+  if (!pins[category]) pins[category] = [];
+  pins[category].push({ url, name });
   savePins();
   renderPins();
   closeModal();
@@ -685,6 +964,125 @@ document.getElementById('pin-url').addEventListener('keydown', e => {
 document.getElementById('pin-name').addEventListener('keydown', e => {
   if (e.key === 'Enter') addPin();
 });
+
+// ─────────────────────────────────────────────
+// SETTINGS MODAL
+// ─────────────────────────────────────────────
+const settingsModal = document.getElementById('settings-modal');
+
+function openSettings() {
+  document.getElementById('settings-name').value = userName;
+  document.getElementById('blur-slider').value = settings.blur;
+  document.getElementById('blur-val').textContent = settings.blur + 'px';
+  document.getElementById('wallpaper-mode-select').value = settings.wallpaperMode;
+  document.getElementById('interval-input').value = String(settings.rotateInterval || 3);
+  populateWallpaperSelect();
+  if (settings.fixedWallpaper) document.getElementById('wallpaper-fixed-select').value = settings.fixedWallpaper;
+  onWallpaperModeChange();
+  renderCategoryEditor();
+  settingsModal.classList.add('open');
+}
+
+function closeSettings() {
+  settingsModal.classList.remove('open');
+}
+settingsModal.addEventListener('click', e => { if (e.target === settingsModal) closeSettings(); });
+
+function onWallpaperModeChange() {
+  const mode = document.getElementById('wallpaper-mode-select').value;
+  document.getElementById('wallpaper-fixed-select').style.display = mode === 'fixed' ? 'block' : 'none';
+  document.getElementById('interval-row').style.display = mode === 'auto' ? 'flex' : 'none';
+}
+
+function onBlurInput() {
+  const v = document.getElementById('blur-slider').value;
+  document.getElementById('blur-val').textContent = v + 'px';
+  document.documentElement.style.setProperty('--blur-amount', v + 'px'); // live preview
+}
+
+function renderCategoryEditor() {
+  const list = document.getElementById('cat-list');
+  list.innerHTML = '';
+  categories.forEach((cat, i) => {
+    const row = document.createElement('div');
+    row.className = 'cat-edit-row';
+
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = cat;
+    inp.dataset.index = i;
+
+    const del = document.createElement('div');
+    del.className = 'cat-del';
+    del.textContent = '×';
+    del.title = 'Delete category';
+    del.onclick = () => {
+      if (categories.length <= 1) return;
+      const removed = categories.splice(i, 1)[0];
+      delete pins[removed];
+      renderCategoryEditor();
+    };
+
+    row.appendChild(inp);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+function addCategory() {
+  const inp = document.getElementById('new-cat-input');
+  const name = inp.value.trim();
+  if (!name || categories.includes(name)) { inp.value = ''; return; }
+  categories.push(name);
+  pins[name] = [];
+  inp.value = '';
+  renderCategoryEditor();
+}
+
+document.getElementById('new-cat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addCategory();
+});
+
+function saveSettings() {
+  // name
+  const newName = document.getElementById('settings-name').value.trim();
+  if (newName) {
+    userName = newName;
+    localStorage.setItem('hp_username', userName);
+    tick();
+  }
+
+  // blur
+  settings.blur = parseInt(document.getElementById('blur-slider').value, 10);
+
+  // wallpaper
+  settings.wallpaperMode = document.getElementById('wallpaper-mode-select').value;
+  settings.fixedWallpaper = document.getElementById('wallpaper-fixed-select').value;
+  settings.rotateInterval = parseInt(document.getElementById('interval-input').value, 10);
+  saveJSON('hp_settings', settings);
+  applyBlur();
+  applyWallpaperMode(true);
+
+  // categories: apply renames, rebuild pins keyed by new names, preserve order
+  const rows = document.querySelectorAll('#cat-list .cat-edit-row input');
+  const newCategories = [];
+  const newPins = {};
+  rows.forEach((inp, i) => {
+    const oldName = categories[i];
+    let newName = inp.value.trim() || oldName;
+    if (newPins[newName]) newName = newName + ' 2'; // avoid collisions
+    newCategories.push(newName);
+    newPins[newName] = pins[oldName] || [];
+  });
+  categories = newCategories.length ? newCategories : categories;
+  pins = newPins;
+  saveCategories();
+  savePins();
+
+  renderPins();
+  populatePinCategorySelect();
+  closeSettings();
+}
 </script>
 </body>
 </html>
